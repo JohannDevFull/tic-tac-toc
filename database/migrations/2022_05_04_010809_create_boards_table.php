@@ -18,6 +18,8 @@ return new class extends Migration
 
             $table->integer('match_id');
             $table->integer('first_player')->default(1);
+            $table->integer('shift')->default(1);
+            
             $table->json('board_fields');
 
             $table->timestamps();

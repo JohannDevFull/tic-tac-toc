@@ -23,14 +23,19 @@ class TictactocController extends Controller
         // if ($request->name != '') {
         //     $request->name="";
         // }
-            $request->name="";
+        
+        $request->name="";
 
         $player=$this->getPlayerSession($request);
+
+        $session_match= $request->session()->has('session_match') ? true : false ;
 
         return Inertia::render('Welcome', [
             'laravelVersion'    => Application::VERSION,
             'phpVersion'        => PHP_VERSION,
-            'player'            => $player
+            'player'            => $player,
+            'session_match'     => $session_match
+
         ]);
     }
 
@@ -45,73 +50,31 @@ class TictactocController extends Controller
         $code   = $this->codeGenerate(6);
         $player = $this->getPlayerSession($request);
 
-
-        if ( isset( $request->code ) ) 
+        if( isset( $request->code ) ) 
         {
             $match          = $this->joinMatch( $request->code , $player->id );
+            $this->sessionMatch( $request , $match->id );
             $player->guest  = true;
         }
         else
         {
             $new_m = !isset($request->new_m) ? $new_m=false : $new_m = $request->new_m;
 
-            // $value = $request->session()->get('key');
-
-            if ( $new_m = false ) 
+            if ( $new_m == false ) 
             {
-                $match=MatchGame::where('ref_player_one_id',$player->id)
-                ->where('state',true)
-                ->orWhere('ref_player_two_id',$player->id)
-                ->where('state',true)
-                ->get();
-
-                if( count($match) > 0 ) 
-                {
-                    $match[0]->board=Board::where('match_id',$match[0]->id)->get();
-                    $match=$match[0];
-                }
-                else
-                {
-                    $match=MatchGame::create([
-                        "code_match"        => $code,
-                        "ref_player_one_id" => $player->id,
-                        "ref_player_two_id" => 0
-                    ]);
-
-                    $board=Board::create([
-                        "match_id"      => $match->id,
-                        "first_player"  => 1,
-                        "board_fields"  => json_encode([0,0,0,0,0,0,0,0,0])
-                    ]);
-
-                    $match->board=$board;
-                }
+                $match=$this->validateOrCreateMatch( $request , $player , $code);
+                $this->sessionMatch( $request , $match->id );
             }
             else
             {
-                MatchGame::where('ref_player_one_id',$player->id)
-                ->orWhere('ref_player_two_id',$player->id)
-                ->update(['state' => false]);
-
-                $match=MatchGame::create([
-                    "code_match"        => $code,
-                    "ref_player_one_id" => $player->id,
-                    "ref_player_two_id" => 0
-                ]);
-
-                $board=Board::create([
-                    "match_id"      => $match->id,
-                    "first_player"  => 1,
-                    "board_fields"  => json_encode([0,0,0,0,0,0,0,0,0])
-                ]);
-
-                $match->board=$board;
+                $match=$this->desableAndCreateMatch( $player , $code );
+                $this->sessionMatch( $request , $match->id );
             }
 
             $player->guest = $player->id == $match->ref_player_one_id ? false : true;
         }
 
-        $shift = $this->shift($player,$match);
+        $shift = $this->shift( $player , $match );
 
         return Inertia::render('BoardGame', [
             'match'             => $match,
@@ -137,8 +100,6 @@ class TictactocController extends Controller
         {
             if ($player->name == '') 
             {
-                # code...
-
                 $player->name=$request->name;
 
                 $player->save();
@@ -170,7 +131,7 @@ class TictactocController extends Controller
         return $player;
     }
 
-    function codeGenerate( $longitud ) 
+    public function codeGenerate( $longitud ) 
     {
         $key = '';
         $pattern = '1234567890abcdefghijklmnopqrstuvwxyz';
@@ -186,13 +147,17 @@ class TictactocController extends Controller
         return $key;
     }
 
-    public function getInfoUpdateGame( $code )
+    public function getInfoUpdateGame( $code , $player )
     {
-        # code...
+        $match = MatchGame::where('code_match',$code)->get();
+        $board=Board::where( 'match_id' , $match[0]->id )->get();
+        
+        $match[0]->board = $board[0];
 
-        $match=MatchGame::where('code_match',$code)->get();
+        $match_player = $match[0]->board->shift == 1 ?  $match[0]->ref_player_one_id : $match[0]->ref_player_two_id;
+        if( $player == $match_player ){ $result=true; }else{ $result=false; }
 
-        $match[0]->board=Board::where('match_id',$match[0]->id)->get();
+        $match[0]->shift_ = $result;
 
         return $match[0];
     }
@@ -205,7 +170,89 @@ class TictactocController extends Controller
 
 
 
-    
+
+
+    public function play( Request $request  )
+    {
+        $match = MatchGame::where('code_match', $request->code )->get();
+
+        $board=Board::where('match_id',$match[0]->id)->get();
+
+        $board[0]->board_fields = json_encode($request->board) ;
+        
+        $board[0]->shift = $board[0]->shift == 1 ? 2 : 1;
+        
+        $board[0]->save();
+
+        return $board[0];
+    }
+
+    public function validatePlay( Request $request  )
+    {
+        $result;        
+
+        return $result;
+    }
+
+    public function validateOrCreateMatch( $request , $player , $code )
+    {
+        $session_match = $request->session()->has('session_match') ? $request->session()->get('session_match') : 0 ;
+
+        // $match=MatchGame::where('ref_player_one_id',$player->id)
+        // ->where('state',true)
+        // ->orWhere('ref_player_two_id',$player->id)
+        // ->where('state',true)
+        // ->get();
+
+        $match=MatchGame::where('id',$session_match)
+        ->get();
+
+        if( count($match) > 0 ) 
+        {
+            $board=Board::where('match_id',$match[0]->id)->get();
+            $match[0]->board = $board[0];
+        }
+        else
+        {
+            $match=MatchGame::create([
+                "code_match"        => $code,
+                "ref_player_one_id" => $player->id,
+                "ref_player_two_id" => 0
+            ]);
+            $board=Board::create([
+                "match_id"      => $match->id,
+                "first_player"  => 1,
+                "board_fields"  => json_encode([0,0,0,0,0,0,0,0,0])
+            ]);
+            // $board=$board[0];
+            $match->board=$board;
+        }
+
+        return $match[0];
+    }
+
+    public function desableAndCreateMatch( $player , $code )
+    {
+        MatchGame::where('ref_player_one_id',$player->id)
+        ->orWhere('ref_player_two_id',$player->id)
+        ->update(['state' => false]);
+
+        $match=MatchGame::create([
+            "code_match"        => $code,
+            "ref_player_one_id" => $player->id,
+            "ref_player_two_id" => 0
+        ]);
+
+        $board=Board::create([
+            "match_id"      => $match->id,
+            "first_player"  => 1,
+            "board_fields"  => json_encode([0,0,0,0,0,0,0,0,0])
+        ]);
+
+        $match->board=$board;
+
+        return $match;
+    }    
 
     public function joinMatch( $code , $player )
     {
@@ -230,13 +277,12 @@ class TictactocController extends Controller
     {
         if ($request->session()->has('session_match')) 
         {
-
             $request->session()->forget('session_match');
-            $request->session()->put('key', $value );
+            $request->session()->put('session_match', $value );
         }
         else
         {
-            $request->session()->put('key', $value );
+            $request->session()->put('session_match', $value );
         }
     }
 
@@ -244,11 +290,10 @@ class TictactocController extends Controller
     {
         $result;
 
-        $match_player = $match->board->first_player == 1 ?  $match->ref_player_two_id : $match->ref_player_two_id;
+        $match_player = $match->board->shift == 1 ?  $match->ref_player_one_id : $match->ref_player_two_id;
 
-        if( $player->id == $match_player ){ $result=true; }else{ $result=true; }
+        if( $player->id == $match_player ){ $result=true; }else{ $result=false; }
 
-        dd($result);
         return $result;
     }
 

@@ -14,7 +14,7 @@
 
         <link href="assets/dist/css/bootstrap.min.css" rel="stylesheet">
 
-        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css">
+        <link rel="stylesheet" href="assets/fontawesome/css/all.css">
 
 
         <style>

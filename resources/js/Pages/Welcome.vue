@@ -10,6 +10,9 @@
             <a class="nav-link" href="#">Features</a>
             <a class="nav-link" href="#">Contact</a>
             -->
+          <Link  :href="route('playing')" class="nav-link active" v-if=" session_match == true ">
+            Ir a Juego activo
+          </Link>
         </nav>
         </div>
     </header>
@@ -82,7 +85,7 @@
 import { Head, Link } from '@inertiajs/inertia-vue3';
 
 export default {
-    props:['player'],
+    props:[ 'player' , 'session_match' ],
     name: 'Wolcome',
     components: {
         Head,

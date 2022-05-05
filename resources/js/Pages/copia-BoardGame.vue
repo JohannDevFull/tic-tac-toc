@@ -165,7 +165,7 @@
 
             if ( this.shift == false ) 
             {
-                setInterval(()=> {this.updateInfoGame()}, 3500);
+                setInterval(()=> {this.updateInfoGame()}, 3000);
             }
 
             if( this.player.name != undefined) 
@@ -202,7 +202,7 @@
                     axios.post('play' , payLoad )
                     .then(response => {
                         this.shift__=false;
-                        setInterval(()=> {this.updateInfoGame()}, 3500);
+                        setInterval(()=> {this.updateInfoGame()}, 2500);
                     })
                     .catch(error => {
                         // var data = error.response.data;

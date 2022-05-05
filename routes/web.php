@@ -32,14 +32,15 @@ Route::middleware(['auth:sanctum',config('jetstream.auth_session'),'verified',])
 |--------------------------------------------------------------------------
 */
 
-    Route::get('/',                             [TictactocController::class, 'index']);
+    Route::get('/',                             			[TictactocController::class, 'index']);
 
-    Route::get('/playing',                      [TictactocController::class, 'toPlay'])->name('playing');
-    Route::post('/playing',                     [TictactocController::class, 'toPlay'])->name('playing');
+    Route::get('/playing',                      			[TictactocController::class, 'toPlay'])->name('playing');
+    Route::post('/playing',                     			[TictactocController::class, 'toPlay'])->name('playing');
 
-    Route::post('/get-another-player/{code}',   [TictactocController::class, 'getAnotherPlayer']);
+    Route::post('/get-another-player/{code}',   			[TictactocController::class, 'getAnotherPlayer']);
+    Route::post('/play',   									[TictactocController::class, 'play']);
 
-    Route::get('/get-info-update-game/{code}',  [TictactocController::class, 'getInfoUpdateGame']);
+    Route::get('/get-info-update-game/{code}/{player}',  	[TictactocController::class, 'getInfoUpdateGame']);
 
     Route::get('/test', [TictactocController::class, 'test']);
 /*
