@@ -20,10 +20,6 @@ class TictactocController extends Controller
      */
     public function index(Request $request)
     {
-        // if ($request->name != '') {
-        //     $request->name="";
-        // }
-        
         $request->name="";
 
         $player=$this->getPlayerSession($request);
@@ -35,7 +31,6 @@ class TictactocController extends Controller
             'phpVersion'        => PHP_VERSION,
             'player'            => $player,
             'session_match'     => $session_match
-
         ]);
     }
 
@@ -47,14 +42,15 @@ class TictactocController extends Controller
     public function toPlay(Request $request)
     {
         $shift=0;
-        $code   = $this->codeGenerate(6);
-        $player = $this->getPlayerSession($request);
-
+        $code           = $this->codeGenerate(6);
+        $player         = $this->getPlayerSession( $request);
+        
         if( isset( $request->code ) ) 
         {
             $match          = $this->joinMatch( $request->code , $player->id );
             $this->sessionMatch( $request , $match->id );
             $player->guest  = true;
+            $request->guest = true;
         }
         else
         {
@@ -71,8 +67,11 @@ class TictactocController extends Controller
                 $this->sessionMatch( $request , $match->id );
             }
 
-            $player->guest = $player->id == $match->ref_player_one_id ? false : true;
+            $player->guest  = $player->id == $match->ref_player_one_id ? false : true;
+            $request->guest = $player->id == $match->ref_player_one_id ? false : true;
         }
+
+        $another_player=$this->getAnotherPlayerBack($request);
 
         $shift = $this->shift( $player , $match );
 
@@ -80,7 +79,8 @@ class TictactocController extends Controller
             'match'             => $match,
             'shift'             => $shift,
             'code'              => $match->code_match,
-            'player'            => $player
+            'player'            => $player,
+            'another_player'    => $another_player
         ]);
     }
 
@@ -108,6 +108,32 @@ class TictactocController extends Controller
 
         return $player;
     }
+
+    public function getAnotherPlayerBack( $request )
+    {
+        # code...
+        $code__;
+        $session_match = $request->session()->has('session_match') ? $request->session()->get('session_match') : 0 ;
+        if($session_match > 0 ){ $match=MatchGame::where('id',$session_match)->get(); $code__= $match[0]->code_match; }
+        if ( !empty($code__) ) 
+        { 
+            $another_player = $this->getAnotherPlayer( $request , $code__ ); 
+            
+            if (isset($another_player->name)) 
+            {
+                # code...
+                $another_player = $another_player->name ;
+            }else
+            {
+                $another_player = 0 ;
+            }
+        }
+        else
+        { 
+            $another_player = 0; 
+        }
+        return $another_player;
+    }
     
     public function getAnotherPlayer(Request $request,$code)
     {
@@ -120,12 +146,12 @@ class TictactocController extends Controller
         if ($request->guest != true) 
         {
             $player=Player::where( 'id' , $match->ref_player_two_id )->get();
-            $player= $match->ref_player_two_id == 0 ? 0 : $player[0] ;
+            $player= $match->ref_player_two_id == 0 ? 0 : $player[0]->name ;
         }
         else
         {
             $player=Player::where( 'id' , $match->ref_player_one_id )->get();
-            $player=$player[0];
+            $player=$player[0]->name;
         }
 
         return $player;
@@ -175,23 +201,50 @@ class TictactocController extends Controller
     public function play( Request $request  )
     {
         $match = MatchGame::where('code_match', $request->code )->get();
-
         $board=Board::where('match_id',$match[0]->id)->get();
-
-        $board[0]->board_fields = json_encode($request->board) ;
-        
+        $board[0]->board_fields = json_encode($request->board) ;       
         $board[0]->shift = $board[0]->shift == 1 ? 2 : 1;
-        
         $board[0]->save();
+
+        $board[0]->winner = $this->validatePlay( $request->player , $board[0]->board_fields );
 
         return $board[0];
     }
 
-    public function validatePlay( Request $request  )
+    public function validatePlay( $player , $boar )
     {
-        $result;        
+        $player = $player['guest'] == true ? 2 : 1 ;
+        $board_fields = json_decode( $boar ) ;
+        
+        $possible_wins=[
+            [0,3,6],
+            [1,4,7],
+            [2,5,8],
+            [0,4,8],
+            [2,4,6],
+            [0,1,2],
+            [3,4,5],
+            [6,7,8]
+        ];
 
-        return $result;
+        $winner=false;
+        $sum=0;
+        $i=0;
+
+        foreach ($possible_wins as $key ) 
+        {
+            if ( $board_fields[ $key[0] ] == $player ){ $sum ++;  }
+            if ( $board_fields[ $key[1] ] == $player ){ $sum ++;  }
+            if ( $board_fields[ $key[2] ] == $player ){ $sum ++;  }
+        
+            if ( $sum == 3 ) { $winner = true;   }
+            
+            $sum=0;
+
+            $i ++;
+        }
+
+        return $winner;
     }
 
     public function validateOrCreateMatch( $request , $player , $code )
@@ -303,5 +356,51 @@ class TictactocController extends Controller
         $data = $request->session()->all();
 
         return $data['_token'];
-    }  
+    }
+
+    public function testValidate( )
+    {
+        $result;
+
+        $player=1;
+
+        $board_fields=[2,0,2,1,1,1,0,1,2];
+
+        $possible_wins=[
+            [0,3,6],
+            [1,4,7],
+            [2,5,8],
+            [0,4,8],
+            [2,4,6],
+            [0,1,2],
+            [3,4,5],
+            [6,7,8]
+        ];
+
+        $winner=false;
+
+        $sum=0;
+        $i=0;
+
+        foreach ($possible_wins as $key ) 
+        {
+            if ( $board_fields[ $key[0] ] == $player ){ $sum ++;  }
+            if ( $board_fields[ $key[1] ] == $player ){ $sum ++;  }
+            if ( $board_fields[ $key[2] ] == $player ){ $sum ++;  }
+        
+            if ( $sum == 3 ) { $winner = true;   }
+            
+            $sum=0;
+
+            $i ++;
+        }
+            
+        
+        $test=[
+            "test"      => $i,
+            "winner"    => $winner
+        ];
+
+        dd($test);
+    }
 }

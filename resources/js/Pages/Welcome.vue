@@ -1,5 +1,5 @@
 <template>
-    <Head title="Welcome" />
+    <Head title="Bienvenido" />
 
     <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
     <header class="mb-auto">
@@ -70,9 +70,20 @@
 
 
     <footer class="mt-auto text-white-50">
-        <p>Cover template for <a href="https://getbootstrap.com/" class="text-white">Bootstrap</a>,
-        by <a href="https://twitter.com/mdo" class="text-white">@mdo</a>,
-            Implemented by <a href="https://github.com/JohannDevFull" target="_blank" class="text-white">Johann Ramirez</a>
+        <p>
+          Cover template for 
+          <a href="https://getbootstrap.com/" class="text-white">
+            Bootstrap
+          </a>,
+          by 
+          <a href="https://twitter.com/mdo" class="text-white">@mdo</a>,
+          
+          Implemented by  
+          <a href="https://github.com/JohannDevFull" target="_blank" class="text-white">
+            <i class="fab fa-github-alt"></i>
+            Johann Ramirez
+            <i class="fab fa-github"></i>
+          </a>
         </p>
     </footer>
 

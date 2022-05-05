@@ -1,9 +1,8 @@
 <template>
-    
+    <Head title="Tablero" />
     <div class="container py-3">
-        
+   
         <header>
-
             <div class="d-flex flex-column flex-md-row align-items-center pb-3 mb-4 border-bottom">
                 <a href="/" class="d-flex align-items-center text-dark text-decoration-none">
                     <svg xmlns="http://www.w3.org/2000/svg" width="40" height="32" class="me-2" viewBox="0 0 118 94" role="img"><title>Bootstrap</title><path fill-rule="evenodd" clip-rule="evenodd" d="M24.509 0c-6.733 0-11.715 5.893-11.492 12.284.214 6.14-.064 14.092-2.066 20.577C8.943 39.365 5.547 43.485 0 44.014v5.972c5.547.529 8.943 4.649 10.951 11.153 2.002 6.485 2.28 14.437 2.066 20.577C12.794 88.106 17.776 94 24.51 94H93.5c6.733 0 11.714-5.893 11.491-12.284-.214-6.14.064-14.092 2.066-20.577 2.009-6.504 5.396-10.624 10.943-11.153v-5.972c-5.547-.529-8.934-4.649-10.943-11.153-2.002-6.484-2.28-14.437-2.066-20.577C105.214 5.894 100.233 0 93.5 0H24.508zM80 57.863C80 66.663 73.436 72 62.543 72H44a2 2 0 01-2-2V24a2 2 0 012-2h18.437c9.083 0 15.044 4.92 15.044 12.474 0 5.302-4.01 10.049-9.119 10.88v.277C75.317 46.394 80 51.21 80 57.863zM60.521 28.34H49.948v14.934h8.905c6.884 0 10.68-2.772 10.68-7.727 0-4.643-3.264-7.207-9.012-7.207zM49.948 49.2v16.458H60.91c7.167 0 10.964-2.876 10.964-8.281 0-5.406-3.903-8.178-11.425-8.178H49.948z" fill="currentColor"></path></svg>
@@ -17,23 +16,20 @@
                     <a class="py-2 text-dark text-decoration-none" href="#">Pricing</a>
                 </nav>
             </div>
-
             <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
                 <h1 class="display-4 fw-normal">{{code}}</h1>
                 <p class="fs-5 text-muted">Invita a un amigo para jugar con este codigo.</p>
             </div>
-
         </header>
 
         <main>
-            
             <div class="row row-cols-1 row-cols-md-3 mb-3 text-center">
                
                 <div class="col">
                     <div class="card mb-4 rounded-3 shadow-sm">
                         <div class="card-header py-3">
-                            <h4 class="my-0 fw-normal text-dark" v-if="another_player != 0">
-                                {{another_player}}
+                            <h4 class="my-0 fw-normal text-dark" v-if="another_player_f != 0">
+                                {{another_player_f}}
                             </h4>
                             <h4 class="my-0 fw-normal text-dark"  v-else>
                                 Esperando invitado ... 
@@ -129,14 +125,31 @@
                             <li>Phone and email support</li>
                             <li>Help center access</li>
                             </ul>
-                            <button type="button" class="w-100 btn btn-lg btn-primary">Contact us</button>
+                            <button type="button" class="w-100 btn btn-lg btn-primary" @click="testValidate()">Contact us</button>
                         </div>
                     </div>
                 </div>
 
             </div>
-
         </main>
+
+        <footer class="mt-auto text-white-50">
+            <p>
+              Cover template for 
+              <a href="https://getbootstrap.com/" class="text-white">
+                Bootstrap
+              </a>,
+              by 
+              <a href="https://twitter.com/mdo" class="text-white">@mdo</a>,
+              
+              Implemented by  
+              <a href="https://github.com/JohannDevFull" target="_blank" class="text-white">
+                <i class="fab fa-github-alt"></i>
+                Johann Ramirez
+                <i class="fab fa-github"></i>
+              </a>
+            </p>
+        </footer>
 
     </div>
 
@@ -144,116 +157,158 @@
 
 <script >
 
+import { Head, Link } from '@inertiajs/inertia-vue3';
+
     export default {
-        props:[ 'shift' , 'code' , 'player' , 'match' , 'session_match' ],
+        props:[ 'shift' , 'code' , 'player' , 'match' , 'session_match' , 'another_player' ],
         name: 'Board',
         components: {
+            Head,
+            Link
         },
         data(){
             return {
-                join_game:false,
                 user_name:"Player 2",
-                player_type:0,
-                another_player:"",
+                another_player_f:0,
                 
                 board:[0,0,0,0,0,0,0,0,0],
                 board_test:[],
-                shift__:false
+                shift__:false,
+                set_interval:'',
+                set_interval_player:'',
+                blocked:false,
+
+
+                time_i:'',
+                time_b:''
             }
         },
         mounted(){
-
             if ( this.shift == false ) 
             {
-                setInterval(()=> {this.updateInfoGame()}, 3500);
+                this.set_interval = setInterval(()=> {
+                    this.updateInfoGame();
+                }, 2500);
             }
 
             if( this.player.name != undefined) 
             {
                 this.shift__=this.shift;
                 this.user_name=this.player.name;
-                // this.board=JSON.stringify(this.match.board.board_fields)
                 this.board=JSON.parse(this.match.board.board_fields);
-                this.getAnotherPlayer();
+                this.another_player_f=this.another_player;
+                this.set_interval_player=setInterval(()=> {
+                    this.getAnotherPlayer();
+                }, 2500);
             }
         },
-        methods:{ 
-
-            joinGame()
-            {
-
-                this.join_game=true;
-            },
-
+        methods:{
             play(pos)
             {
-                if (this.shift__ == true ) 
+
+                // if (this.shift__ == true || this.another_player_f != 0 ) 
+                if ( this.shift__ == true ) 
                 {
-
-                    this.board[pos]=this.player.guest == true ? 2 : 1 ;
-
+                    this.board[pos] = this.player.guest == true ? 2 : 1 ;
                     this.shift__=false;
-
                     let payLoad={
                         board:this.board,
-                        code:this.code
+                        code:this.code,
+                        player:this.player
                     }
-
                     axios.post('play' , payLoad )
                     .then(response => {
                         this.shift__=false;
-                        setInterval(()=> {this.updateInfoGame()}, 3500);
+                        console.log("-l-ll--l-l-l-l-l-");
+                        console.log(response.data)
+                        console.log("-l-ll--l-l-l-l-l-");
+                        if (response.data.winner == true )  
+                        {
+                            alert("Ganasteeeeeeeeeeeeeeee")
+                        }
+                        setTimeout(()=>{
+                            this.set_interval = setInterval(()=> {
+                                this.updateInfoGame(); 
+                                console.log("sol_222:"+this.time_i);
+                                this.time_i++; 
+                            }, 2500);
+                        },200);    
                     })
                     .catch(error => {
-                        // var data = error.response.data;
-                        this.shift__=false;
+                        console.log("Error - play() ")
                     });
+
+                }
+                else{
+                    alert("Nooooo pudes jugar todavia")
                 }
             },
-
-            getAnotherPlayer()
-            {
-                let payLoad={
-                    guest:this.player.guest
-                };
-
-                axios.post('get-another-player/'+this.code , payLoad )
-                .then(response => {
-
-                    this.another_player=response.data.name;
-
-
-                })
-                .catch(error => {
-                    // var data = error.response.data;
-                });
-            },
-
             updateInfoGame()
             {
 
                 axios.get('get-info-update-game/'+this.code+'/'+this.player.id)
                 .then(response => {
-                    if (response.data.shift_ == true) 
-                    { 
-                        this.shift__= true; 
-                        this.board= JSON.parse(response.data.board.board_fields); 
+                    
+                    if ( response.data.shift_ == true ) 
+                    {
+
+                        this.board=JSON.parse(response.data.board.board_fields);
+                        this.shift__= true;
+                        clearInterval(this.set_interval)
                     }
+
                 })
                 .catch(error => {
 
                 });
-            }
 
+                if (this.another_player_f == 0) { this.getAnotherPlayer() }
+            },
+            getAnotherPlayer()
+            {
+                let payLoad={
+                    guest:this.player.guest
+                };
+                axios.post('get-another-player/'+this.code , payLoad )
+                .then(response => {
+                    this.another_player_f=response.data;
+                    if ( response.data != 0 ) {clearInterval(this.set_interval_player)}
+                })
+                .catch(error => {
+                    console.log("Error - getAnotherPlayer()");
+                });
+            },
+
+
+
+
+
+
+
+
+
+            testValidate()
+            {
+
+                let payLoad={
+                    board:this.board,
+                    code:this.code
+                }
+
+                axios.post('test-validate' , payLoad )
+                .then(response => {
+                })
+                .catch(error => {
+                    // var data = error.response.data;
+                    this.shift__=false;
+                });
+            }
         }
     }
 
 </script>
 
 <style>
-
-  
-
     #tablero td {
         color: #222;
         font-size: 36px;

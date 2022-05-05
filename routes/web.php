@@ -42,7 +42,8 @@ Route::middleware(['auth:sanctum',config('jetstream.auth_session'),'verified',])
 
     Route::get('/get-info-update-game/{code}/{player}',  	[TictactocController::class, 'getInfoUpdateGame']);
 
-    Route::get('/test', [TictactocController::class, 'test']);
+    Route::get('/test',                                     [TictactocController::class, 'test']);
+    Route::post('/test-validate',                           [TictactocController::class, 'testValidate']);
 /*
 |--------------------------------------------------------------------------
 | Tic tac toc
