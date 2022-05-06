@@ -211,13 +211,18 @@ class TictactocController extends Controller
 
 
 
-    public function ipdateName($value='')
+    public function updateName( Request $request )
     {
         # code...
-        # ..............................................................................
+        $player=Player::find($request->id)
+        ->update([
+        	"name"	=> $request->name
+        ]);
+
+        return $player;
     }
 
-    public function play( Request $request  )
+    public function play( Request $request )
     {
         $match = MatchGame::where('code_match', $request->code )->get();
         $board = Board::where('matchs_id',$match[0]->id)->get();
@@ -289,10 +294,17 @@ class TictactocController extends Controller
         $match=MatchGame::where('id',$session_match)
         ->get();
 
+
+
         if( count($match) > 0 ) 
         {
             $board=Board::where('matchs_id',$match[0]->id)->get();
             $match[0]->board = $board[0];
+
+            $players=$this->infoPlayers($match[0]);
+
+            $match[0]->player_host=$players['host'];
+            $match[0]->player_guest=$players['guest'];
         }
         else
         {
@@ -311,6 +323,31 @@ class TictactocController extends Controller
         }
 
         return $match[0];
+    }
+
+    public function infoPlayers($match)
+    {
+    	# code...
+    	if ( $match->ref_player_one_id > 0 ) 
+        {
+        	$host=Player::find($match->ref_player_one_id);
+        }else{
+        	$host=0;
+        }
+
+        if ( $match->ref_player_two_id > 0 ) 
+        {
+        	$guest=Player::find($match->ref_player_two_id);
+        }else{
+        	$guest=0;
+        }
+
+        $players=[
+        	"host"	=> $host,
+        	"guest"	=> $guest
+        ];
+
+        return $players;
     }
 
     public function desableAndCreateMatch( $player , $code , $config )
