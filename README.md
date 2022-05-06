@@ -5,10 +5,10 @@
 
 </p>
 
-# Postdata 
+# Mensaje
 
  
-_De antemano pido disculpas por mi Ingles tan malo_
+_De antemano pido disculpas por mi Ingles tan malo :cold_sweat:_
 
 # Tic tac toc
 
@@ -104,6 +104,12 @@ _Sembrar informacion en la base de datos_
 php artisan db:seed
 ```
 
+_Y por ultimo levantar el servidor_
+
+```
+php artisan serve
+```
+
 
 
 _Tambien puede dirigirse a una previsualizacion del proyecto alojado en un hosting en la siguiente dirección._
@@ -162,7 +168,7 @@ Este proyecto está bajo la Licencia (Tu Licencia) - mira el archivo [LICENSE.md
 * Invita una cerveza 🍺 o un café ☕ a alguien del equipo. 
 * Da las gracias públicamente 🤓.
 * etc.
-
+* :envelope: Para mensajes [Johann Ramire](johann.devfull@gmail.com)
 
 
 ---

@@ -11,7 +11,7 @@
 
                 <nav class="d-inline-flex mt-2 mt-md-0 ms-md-auto ">
                     <a class="p-2 btn btn-success  text-decoration-none text-white" href="#">Nuevo juego</a> 
-                    
+                    -
                     <a class="me-3 p-2 btn btn-danger text-decoration-none text-white" href="#">
                         Salir
                         <i class="fas fa-window-close"></i>
@@ -45,7 +45,9 @@
                             <ul class="list-unstyled mt-2 mb-3">
                             </ul>
                             
-                            <button type="button" class="w-100 btn btn-lg btn-outline-primary">Sign up for free</button>
+                            <button type="button" class="w-100 btn btn-lg btn-primary" v-if="new_game" @click="sendRequets()">
+                                Empesar nuevo juego
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -59,7 +61,7 @@
                         
                         <div class="card-body">
                             
-                            <table id="tablero" style="margin:auto">
+                            <table id="tablero" style="margin:auto" >
                                 <tr>
                                     <td @click="play(0)">
                                         <i class="fas fa-times" v-if="board[0] == 1"></i>
@@ -149,8 +151,12 @@
                             </ul>
 
                             
-                            
-                            <button type="button" class="w-100 btn btn-lg btn-primary" @click="testValidate()">Contact us</button>
+                            <!-- <button type="button" class="w-100 btn btn-lg btn-primary" @click="testValidate()">
+                                Empesar nuevo juego
+                            </button> -->
+                            <button type="button" class="w-100 btn btn-lg btn-primary" v-if="new_game" @click="newGame()">
+                                Empesar nuevo juego
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -210,6 +216,7 @@ import { Head, Link } from '@inertiajs/inertia-vue3';
                 game_over:false,
                 name_player:'',
                 name_edit:false,
+                new_game:false,
                 icono:'fas fa-times',
                 icons:[
                     'fas fa-user',
@@ -233,19 +240,29 @@ import { Head, Link } from '@inertiajs/inertia-vue3';
         },
         mounted(){
 
-            if( this.player.name != undefined) 
+            if(typeof this.player.name != undefined || typeof this.player.name !=  'undefined') 
             {
                 this.shift__=this.shift;
                 this.user_name=this.player.name;
-                this.board=JSON.parse(this.match.board.board_fields);
+
+                this.board=this.match.board.board_fields;
+
                 this.another_player_f=this.another_player;
 
                 this.icono= this.player.guest == true ? 'fas fa-circle' : 'fas fa-times'; 
                 
 
-                if ( typeof this.match.player_guest != undefined ) 
+                if ( this.match.player_guest != 0 ) 
                 {
-                    this.another_player_f=this.match.player_guest.name;
+
+                    if ( this.player.guest == false ) 
+                    {
+
+                        this.another_player_f=this.match.player_guest.name;
+                    }else{
+                        this.another_player_f=this.match.player_host.name;
+                    }
+
                 }
                 else
                 {
@@ -261,7 +278,6 @@ import { Head, Link } from '@inertiajs/inertia-vue3';
                     this.updateInfoGame();
                 }, 2500);
             }
-
             
         },
         methods:{
@@ -285,6 +301,9 @@ import { Head, Link } from '@inertiajs/inertia-vue3';
                         {
                             this.game_over=true
                             alert("Ganasteeeeeeeeeeeeeeee");
+
+                            this.new_game=true;
+                            
                             setTimeout(()=>{
                                 this.updateInfoGame();
                             },2500); 
@@ -323,7 +342,10 @@ import { Head, Link } from '@inertiajs/inertia-vue3';
                         if (response.data.winner == true )  
                         {
                             this.game_over=true;
-                            alert("Geme Oveeeer XD")
+
+                            setTimeout(()=>{
+                                alert("Game Oveeeer XD")
+                            },222)
                         }
 
                         clearInterval(this.set_interval)
@@ -355,10 +377,54 @@ import { Head, Link } from '@inertiajs/inertia-vue3';
 
 
 
+            confirmNewGame()
+            {
+                //Ingresamos un mensaje a mostrar
+                var mensaje = confirm("¿Quires jugar de nuevo?");
+                //Detectamos si el usuario acepto el mensaje
+                if (mensaje) {
+                    alert("¡Listo a jugar se dijo!");
+                    this.startNewGame();
+                }
+                else {
+                    //Detectamos si el usuario denegó el mensaje
+                    alert("¡Ok en otra ocacipon sera, gracias por jugar!");
+                }
+            },
 
+            startNewGame()
+            {
+                alert("Nuevo juego")
 
+                let payLoad={
+                    match:this.match,
+                    code:this.code
+                }
 
+                axios.post('new-game' , payLoad )
+                .then(response => {
+                })
+                .catch(error => {
+                    // var data = error.response.data;
+                    this.shift__=false;
+                    
+                });
+            },
+            sendRequets()
+            {
+                let payLoad={
+                    match:this.match,
+                    code:this.code
+                }
 
+                axios.post('send-request' , payLoad )
+                .then(response => {
+                })
+                .catch(error => {
+                    // var data = error.response.data;
+                    this.shift__=false;
+                });
+            },
             editName(){
                 
                 this.name_edit=true;

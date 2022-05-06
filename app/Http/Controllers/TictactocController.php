@@ -49,7 +49,7 @@ class TictactocController extends Controller
         
         if( isset( $request->code ) ) 
         {
-            $match          = $this->joinMatch( $request->code , $player->id );
+            $match= $this->joinMatch( $request->code , $player->id );
             $this->sessionMatch( $request , $match->id );
             $player->guest  = true;
             $request->guest = true;
@@ -195,11 +195,11 @@ class TictactocController extends Controller
         if ($match[0]->winner) 
         {
             # Reiniciar juego
-            $board_type=BoardType::find($board[0]->boards_type_id);
-            $board_fields=json_decode($board_type->board_fields);
-            $board[0]->board_fields=$board_fields;
-            $board[0]->first_player=$board[0]->first_player == 1 ? 2 : 1;
-            $board[0]->save();
+            // $board_type=BoardType::find($board[0]->boards_type_id);
+            // $board_fields=json_decode($board_type->board_fields);
+            // $board[0]->board_fields=$board_fields;
+            // $board[0]->first_player=$board[0]->first_player == 1 ? 2 : 1;
+            // $board[0]->save();
         }
 
         return $match[0];
@@ -208,8 +208,43 @@ class TictactocController extends Controller
 
 
 
+    
+    public function requestGame($value='')
+    {
+        # code...
+        $match = MatchGame::where('code_match',$request->code)->get();
+        $board = Board::where( 'matchs_id' , $match[0]->id )->get();
+        
+        $board[0]->request=1;
 
+        $board[0]->save();
+    }
 
+    public function responseGame($value='')
+    {
+        # code...
+
+        $match = MatchGame::where('code_match',$request->code)->get();
+        $board = Board::where( 'matchs_id' , $match[0]->id )->get();
+        
+        $board[0]->response=1;
+        $board[0]->request=0;
+
+        $board[0]->save();
+    }
+    
+    public function newGame( Request $request )
+    {
+        # code...
+        $match = MatchGame::where('code_match',$request->code)->get();
+        $board = Board::where( 'matchs_id' , $match[0]->id )->get();
+        
+        $board_type=BoardType::find($board[0]->boards_type_id);
+        $board_fields=json_decode($board_type->board_fields);
+        $board[0]->board_fields=$board_fields;
+        $board[0]->first_player=$board[0]->first_player == 1 ? 2 : 1;
+        $board[0]->save();
+    }
 
     public function updateName( Request $request )
     {
@@ -302,7 +337,6 @@ class TictactocController extends Controller
             $match[0]->board = $board[0];
 
             $players=$this->infoPlayers($match[0]);
-
             $match[0]->player_host=$players['host'];
             $match[0]->player_guest=$players['guest'];
         }
@@ -352,6 +386,7 @@ class TictactocController extends Controller
 
     public function desableAndCreateMatch( $player , $code , $config )
     {
+        $players=[];
         MatchGame::where('ref_player_one_id',$player->id)
         ->orWhere('ref_player_two_id',$player->id)
         ->update(['state' => false]);
@@ -377,7 +412,10 @@ class TictactocController extends Controller
         ]);
 
         $match->board=$board;
-        $match->board->board_fields=json_decode($match->board_fields);
+        $match->board->board_fields=json_decode($board->board_fields);
+        $players=$this->infoPlayers($match);
+        $match->player_host=$players['host'];
+        $match->player_guest=$players['guest'];
 
         return $match;
     }    
@@ -397,6 +435,11 @@ class TictactocController extends Controller
 
         $board=Board::where('matchs_id',$match[0]->id)->get();
         $match[0]->board=$board[0];
+
+        $players=$this->infoPlayers($match[0]);
+        $match[0]->player_host=$players['host'];
+        $match[0]->player_guest=$players['guest'];
+
 
         return $match[0];
     }

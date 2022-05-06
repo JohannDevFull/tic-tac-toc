@@ -10,7 +10,8 @@
             <a class="nav-link" href="#">Features</a>
             -->
           <Link  :href="route('playing')" class="nav-link active" v-if=" session_match == true ">
-            Ir a Juego activo <i class="fas fa-gamepad"></i>
+            <i class="fas fa-gamepad"></i>
+            Ir a Juego activo 
           </Link>
           <a class="nav-link" href="#" v-if="player.name != '' "><i class="fas fa-user"></i> Jugado: {{ player.name }}</a>
         </nav>
@@ -96,9 +97,9 @@
 
             </h2>
 
-            <Link  :href="route('playing')"  method="post" :data="{ name: hasName() , code: code , new_m:true ,type:type , multi:multi}" class="btn btn-lg btn-secondary fw-bold border-white bg-white">
+            <!-- <Link  :href="route('playing')"  method="post" :data="{ name: hasName() , code: code , new_m:true ,type:type , multi:multi}" class="btn btn-lg btn-secondary fw-bold border-white bg-white">
                 - Nueva partida -
-            </Link>        
+            </Link>   -->      
         </form>
     </main>
 

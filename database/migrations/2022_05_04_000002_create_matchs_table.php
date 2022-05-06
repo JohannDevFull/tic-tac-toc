@@ -21,8 +21,8 @@ return new class extends Migration
             $table->boolean('state')->default(true);
 
             // $table->integer('multiplayer');
-            $table->integer('ref_player_one_id');
-            $table->integer('ref_player_two_id');
+            $table->integer('ref_player_one_id')->default(0);
+            $table->integer('ref_player_two_id')->default(0);
 
             $table->timestamps();
         });
