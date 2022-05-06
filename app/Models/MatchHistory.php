@@ -5,11 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Board extends Model
+class MatchHistory extends Model
 {
     use HasFactory;
 
-    protected $table = 'boards';
+    protected $table = 'matchs_historys';
 
     /**
      * The attributes that are mass assignable.
@@ -18,8 +18,7 @@ class Board extends Model
      */
     protected $fillable = [
         'matchs_id',
-        'first_player',
-        'board_fields',
-        'boards_type_id'
+        'winning_player',
+        'board_plays'
     ];
 }

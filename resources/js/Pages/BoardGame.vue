@@ -107,6 +107,12 @@
                                 </tr>
                             </table>
 
+                            <table id="tablero" style="margin:auto" >
+                            
+                            </table>
+
+
+
                             <button type="button" class="w-100 btn btn-lg btn-outline-primary mt-3">0  vs  1</button>                           
                         </div>
                     </div>
@@ -115,16 +121,20 @@
                 <div class="col">
                     <div class="card mb-4 rounded-3 shadow-sm border-primary">
                         <div class="card-header py-3 text-white bg-primary border-primary">
+                            
+                            <input type="text" class="form-control" v-if="name_edit" v-model="user_name">
                             <h4 class="my-0 fw-normal">{{user_name}}</h4>
+
                         </div>
                         <div class="card-body">
-                            <h1 class="card-title pricing-card-title">$29<small class="text-muted fw-light">/mo</small></h1>
-                            <ul class="list-unstyled mt-3 mb-4">
-                            <li>30 users included</li>
-                            <li>15 GB of storage</li>
-                            <li>Phone and email support</li>
-                            <li>Help center access</li>
-                            </ul>
+                            <button class="btn btn-warning pb-4 mb-3" @click="editName()">
+                                <i class="fas fa-edit"></i>
+                            </button>
+
+                            <button class="btn btn-warning pb-4 mb-3" @click="updateName()">
+                                <i class="fas fa-save"></i>
+                            </button>
+                            
                             <button type="button" class="w-100 btn btn-lg btn-primary" @click="testValidate()">Contact us</button>
                         </div>
                     </div>
@@ -180,7 +190,11 @@ import { Head, Link } from '@inertiajs/inertia-vue3';
 
 
                 time_i:'',
-                time_b:''
+                time_b:'',
+
+                game_over:false,
+                name_player:'',
+                name_edit:false
             }
         },
         mounted(){
@@ -219,12 +233,10 @@ import { Head, Link } from '@inertiajs/inertia-vue3';
                     axios.post('play' , payLoad )
                     .then(response => {
                         this.shift__=false;
-                        console.log("-l-ll--l-l-l-l-l-");
-                        console.log(response.data)
-                        console.log("-l-ll--l-l-l-l-l-");
                         if (response.data.winner == true )  
                         {
-                            alert("Ganasteeeeeeeeeeeeeeee")
+                            this.game_over=true
+                            alert("Ganasteeeeeeeeeeeeeeee");
                         }
                         setTimeout(()=>{
                             this.set_interval = setInterval(()=> {
@@ -237,7 +249,6 @@ import { Head, Link } from '@inertiajs/inertia-vue3';
                     .catch(error => {
                         console.log("Error - play() ")
                     });
-
                 }
                 else{
                     alert("Nooooo pudes jugar todavia")
@@ -245,15 +256,26 @@ import { Head, Link } from '@inertiajs/inertia-vue3';
             },
             updateInfoGame()
             {
+                let payLoad={
+                    code:   this.code,
+                    player: this.player
+                }
 
-                axios.get('get-info-update-game/'+this.code+'/'+this.player.id)
+                axios.post('get-info-update-game',payLoad)
                 .then(response => {
                     
                     if ( response.data.shift_ == true ) 
                     {
-
+                        console.log("-l-ll--l-l-l-l-l-");
+                        console.log(response.data)
+                        console.log("-l-ll--l-l-l-l-l-");
                         this.board=JSON.parse(response.data.board.board_fields);
                         this.shift__= true;
+                        if (response.data.winner == true )  
+                        {
+                            this.game_over=true;
+                            alert("Geme Oveeeer XD")
+                        }
                         clearInterval(this.set_interval)
                     }
 
@@ -287,6 +309,23 @@ import { Head, Link } from '@inertiajs/inertia-vue3';
 
 
 
+            editName(){
+                this.name_edit=true;
+                
+            },
+            updateName(){
+                let payLoad={
+                    id: this.player.id,
+                    name: this.name_player,
+                }
+                axios.post('update-name', payLoad )
+                .then(response => {
+                })
+                .catch(error => {
+                    // var data = error.response.data;
+                    this.shift__=false;
+                });
+            },
             testValidate()
             {
 
@@ -301,7 +340,9 @@ import { Head, Link } from '@inertiajs/inertia-vue3';
                 .catch(error => {
                     // var data = error.response.data;
                     this.shift__=false;
+                    
                 });
+
             }
         }
     }

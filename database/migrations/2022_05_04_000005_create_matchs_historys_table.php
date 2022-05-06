@@ -13,13 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('match_history', function (Blueprint $table) {
+        Schema::create('matchs_historys', function (Blueprint $table) {
             $table->id();
-
-            $table->integer('match_id');
-
+            
+            $table->foreignId('matchs_id')->references('id')->on('matchs');
             $table->integer('winning_player');
-
             $table->json('board_plays');
 
             $table->timestamps();
@@ -33,6 +31,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('match_history');
+        Schema::dropIfExists('matchs_historys');
     }
 };

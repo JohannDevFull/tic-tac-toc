@@ -8,36 +8,62 @@
         <nav class="nav nav-masthead justify-content-center float-md-end">
             <!--<a class="nav-link active" aria-current="page" href="#">Home</a>
             <a class="nav-link" href="#">Features</a>
-            <a class="nav-link" href="#">Contact</a>
             -->
           <Link  :href="route('playing')" class="nav-link active" v-if=" session_match == true ">
-            Ir a Juego activo
+            Ir a Juego activo <i class="fas fa-gamepad"></i>
           </Link>
+          <a class="nav-link" href="#" v-if="player.name != '' "><i class="fas fa-user"></i> Jugado: {{ player.name }}</a>
         </nav>
         </div>
     </header>
 
-    <main class="px-3" v-if="join_game == false">
+    <main class="px-1" v-if="join_game == false">
         <h1>Tic tac toc.</h1>
         <p class="lead">
             El tres en línea, también conocido como ceros y cruces, tres en raya, cerito cruz, michi, triqui, cuadritos, juego del gato, gato, tatetí, totito, triqui traka, equis cero, tic-tac-toe o la vieja es un juego de lápiz y papel entre dos jugadores: O y X, que marcan los espacios de un tablero de 3×3 alternadamente.
             <a href="https://es.wikipedia.org/wiki/Tres_en_l%C3%ADnea" class="fw-bold border-white ">Wikipedia</a>
         </p>
+          
+          <p class="text-uppercase pt-1">Tipo de tablero.</p>
+        <div >
+          <input type="radio" class="btn-check" id="type_1"  :value="1" v-model="type" >
+          <label :class=" type == 1 ? 'btn btn-outline-success' : 'btn btn-outline-danger' " for="type_1">Tres</label>
+          -
+          <input type="radio" class="btn-check" id="type_2"  :value="2" v-model="type">
+          <label :class=" type == 2 ? 'btn btn-outline-success' : 'btn btn-outline-danger' " for="type_2">Cuatro</label>
+          -
+          <input type="radio" class="btn-check"   :value="3" v-model="type" disabled>
+          <label class="btn btn-outline-danger" for="danger-outlined">Cinco</label>
+        </div>
+
+          <p class="text-uppercase pt-1">Multijugador.</p>
+        <div class="mb-3">
+          
+          <input type="radio" class="btn-check"  id="multi_1" :value="1" v-model="multi" checked>
+          <label :class=" multi == 1 ? 'btn btn-outline-success' : 'btn btn-outline-danger' " for="multi_1">SI</label>
+          -
+          <input type="radio" class="btn-check"  id="danger-outlined" :value="2" v-model="multi" disabled>
+          <label :class=" multi == 2 ? 'btn btn-outline-success' : 'btn btn-outline-danger' " for="danger-outlined">NO</label>
+        </div>
+
         <p class="lead">
-        <a href="#" ></a>
-            <Link  :href="route('playing')" method="post" :data="{ name:hasName() , new_m:true }" class="btn btn-lg btn-secondary fw-bold border-white bg-white">
-                - Nueva partida -
+            <Link  :href="route('playing')" method="post" :data="{ name:hasName() , new_m:true ,type:type , multi:multi }" class="btn btn-lg btn-secondary fw-bold border-white bg-white">
+              <i class="fas fa-star"></i>
+                Nueva partida 
+              <i class="fas fa-star"></i>
             </Link>
         </p>
 
         <p class="lead">
-            <button type="button" class="btn btn-lg btn-secondary fw-bold border-white bg-white" @click="joinGame()">
-                Unirse a partida
-            </button>
+          <button type="button" class="btn btn-lg btn-secondary fw-bold border-white bg-white" @click="joinGame()">
+            <i class="fas fa-link"></i>
+              Unirse a partida
+            <i class="fas fa-sign-in-alt"></i>
+          </button>
         </p>
     </main>
 
-    <main class="px-3" v-else>
+    <main class="px-1" v-else>
         <form class="">
             
             <div class="mb-3">
@@ -60,9 +86,17 @@
             
             <hr class="my-4">
             
-            <h2 class="fs-5 fw-bold mb-3">O cree una nueva partida e invite un amigo.</h2>
+            <h2 class="fs-5 fw-bold mb-3">
+              O cree una nueva partida e invite un amigo.
 
-            <Link  :href="route('playing')" :data="{ name: hasName() , code: code , new_m:true }" class="btn btn-lg btn-secondary fw-bold border-white bg-white">
+
+              <a href="#" @click="home()">
+                Volver
+              </a>
+
+            </h2>
+
+            <Link  :href="route('playing')"  method="post" :data="{ name: hasName() , code: code , new_m:true ,type:type , multi:multi}" class="btn btn-lg btn-secondary fw-bold border-white bg-white">
                 - Nueva partida -
             </Link>        
         </form>
@@ -106,7 +140,9 @@ export default {
         return {
             code:'',
             join_game:false,
-            user_name:''
+            user_name:'',
+            type:1,
+            multi:1
         }
     },
     mounted(){
@@ -145,6 +181,11 @@ export default {
         
         this.user_name="Player 2"
         this.join_game=true;
+      },
+      home()
+      {
+        this.user_name="Player 1"
+        this.join_game=false;
       }
 
     }

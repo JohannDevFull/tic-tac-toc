@@ -13,16 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('matchs', function (Blueprint $table) {
+        Schema::create('boards_types', function (Blueprint $table) {
             $table->id();
-            
-            $table->string('code_match');
 
-            $table->boolean('state')->default(true);
-
-            // $table->integer('multiplayer');
-            $table->integer('ref_player_one_id');
-            $table->integer('ref_player_two_id');
+            $table->string('name');
+            $table->json('board_fields');
+            $table->json('board_fields_winners');
 
             $table->timestamps();
         });
@@ -35,6 +31,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('matchs');
+        Schema::dropIfExists('boards_types');
     }
 };
