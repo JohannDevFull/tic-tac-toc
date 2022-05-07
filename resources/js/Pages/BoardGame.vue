@@ -8,7 +8,6 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="40" height="32" class="me-2" viewBox="0 0 118 94" role="img"><title>Bootstrap</title><path fill-rule="evenodd" clip-rule="evenodd" d="M24.509 0c-6.733 0-11.715 5.893-11.492 12.284.214 6.14-.064 14.092-2.066 20.577C8.943 39.365 5.547 43.485 0 44.014v5.972c5.547.529 8.943 4.649 10.951 11.153 2.002 6.485 2.28 14.437 2.066 20.577C12.794 88.106 17.776 94 24.51 94H93.5c6.733 0 11.714-5.893 11.491-12.284-.214-6.14.064-14.092 2.066-20.577 2.009-6.504 5.396-10.624 10.943-11.153v-5.972c-5.547-.529-8.934-4.649-10.943-11.153-2.002-6.484-2.28-14.437-2.066-20.577C105.214 5.894 100.233 0 93.5 0H24.508zM80 57.863C80 66.663 73.436 72 62.543 72H44a2 2 0 01-2-2V24a2 2 0 012-2h18.437c9.083 0 15.044 4.92 15.044 12.474 0 5.302-4.01 10.049-9.119 10.88v.277C75.317 46.394 80 51.21 80 57.863zM60.521 28.34H49.948v14.934h8.905c6.884 0 10.68-2.772 10.68-7.727 0-4.643-3.264-7.207-9.012-7.207zM49.948 49.2v16.458H60.91c7.167 0 10.964-2.876 10.964-8.281 0-5.406-3.903-8.178-11.425-8.178H49.948z" fill="currentColor"></path></svg>
                     <span class="fs-4 text-white">Tic tac toc</span>
                 </a>
-
                 <nav class="d-inline-flex mt-2 mt-md-0 ms-md-auto ">
                     <a class="p-2 btn btn-success  text-decoration-none text-white" href="#">Nuevo juego</a> 
                     -
@@ -21,7 +20,14 @@
             <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
                 <h1 class="display-4 fw-normal">{{code}}</h1>
                 <p class="fs-5 text-muted" v-if="another_player_f == 0"> Invita a un amigo para jugar con este codigo.</p>
-                <p class="fs-5 text-muted" v-else>En horabuena disfuta del juego con tu invitado.</p>
+                <p class="fs-5 text-muted" v-else>
+                    <span v-if="player.guest == true">
+                        Bienvenido disfuta del juego con tu amigo.
+                    </span>
+                    <span v-else>
+                        En horabuena disfuta del juego con tu invitado.
+                    </span>    
+                </p>
             </div>
         </header>
 
@@ -30,8 +36,16 @@
                
                 <div class="col">
                     <div class="card mb-4 rounded-3 shadow-sm">
+                        
                         <div class="card-header py-3">
                             <h4 class="my-0 fw-normal text-dark" v-if="another_player_f != 0">
+                                <span v-if="player.guest == true">
+                                    ANFITRION:
+                                </span>
+                                <span v-else>
+                                    INVITADO:
+                                </span>
+                                    
                                 {{another_player_f}}
                             </h4>
                             <h4 class="my-0 fw-normal text-dark"  v-else>
@@ -40,28 +54,39 @@
                                 </div>
                             </h4>
                         </div>
+                        
                         <div class="card-body">
 
                             <ul class="list-unstyled mt-2 mb-3">
                             </ul>
                             
-                            <button type="button" class="w-100 btn btn-lg btn-primary" v-if="new_game" @click="sendRequets()">
-                                Empesar nuevo juego
-                            </button>
+                            
+                            <!-- <h4 class="my-0 fw-normal text-dark"  v-else>
+                                Esperando respuesta ... 
+                                <div class="spinner-grow text-primary" role="status">
+                                </div>
+                            </h4> -->
                         </div>
+
                     </div>
                 </div>
                 
                 <div class="col">
                     <div class="card mb-4 rounded-3 shadow-sm">                     
-                        <div class="card-header py-3">
+                        <div class="card-header py-3" v-if="game_over == false">
                             <h4 class="my-0 fw-normal text-dark" v-if="shift__ == true">Haz tu jugada</h4>
                             <h4 class="my-0 fw-normal text-dark" v-else>Espera tu turno</h4>
+                        </div>
+                        <div class="card-header py-3" v-else>
+                            <h4 class="my-0 fw-normal text-dark" >El juego a terminado</h4>
+                            <button type="button" class="w-100 btn btn-lg btn-primary mt-2" @click="sendRequets()">
+                                Empesar nuevo juego
+                            </button>
                         </div>
                         
                         <div class="card-body">
                             
-                            <table id="tablero" style="margin:auto" >
+                            <table id="tablero" style="margin:auto; cursor: pointer;" >
                                 <tr>
                                     <td @click="play(0)">
                                         <i class="fas fa-times" v-if="board[0] == 1"></i>
@@ -112,8 +137,6 @@
                             
                             </table>
 
-
-
                             <button type="button" class="w-100 btn btn-lg btn-outline-primary mt-3">0  vs  1</button>                           
                         </div>
                     </div>
@@ -154,9 +177,9 @@
                             <!-- <button type="button" class="w-100 btn btn-lg btn-primary" @click="testValidate()">
                                 Empesar nuevo juego
                             </button> -->
-                            <button type="button" class="w-100 btn btn-lg btn-primary" v-if="new_game" @click="newGame()">
+                            <!-- <button type="button" class="w-100 btn btn-lg btn-primary" v-if="new_game" @click="newGame()">
                                 Empesar nuevo juego
-                            </button>
+                            </button> -->
                         </div>
                     </div>
                 </div>
@@ -217,6 +240,8 @@ import { Head, Link } from '@inertiajs/inertia-vue3';
                 name_player:'',
                 name_edit:false,
                 new_game:false,
+                new_game:false,
+                waiting_response:false,
                 icono:'fas fa-times',
                 icons:[
                     'fas fa-user',
@@ -240,37 +265,36 @@ import { Head, Link } from '@inertiajs/inertia-vue3';
         },
         mounted(){
 
-            if(typeof this.player.name != undefined || typeof this.player.name !=  'undefined') 
-            {
-                this.shift__=this.shift;
-                this.user_name=this.player.name;
+            this.shift__=this.shift;
+            this.user_name=this.player.name;
 
+            if ( typeof this.match.board.board_fields == 'string') {
+                this.board=JSON.parse(this.match.board.board_fields);
+            }else{
                 this.board=this.match.board.board_fields;
+            }
 
-                this.another_player_f=this.another_player;
+            this.another_player_f=this.another_player;
+            this.game_over=this.match.board.game_over;
+            this.icono= this.player.guest == true ? 'fas fa-circle' : 'fas fa-times'; 
+            
 
-                this.icono= this.player.guest == true ? 'fas fa-circle' : 'fas fa-times'; 
-                
-
-                if ( this.match.player_guest != 0 ) 
+            if ( this.match.player_guest != 0 ) 
+            {
+                if ( this.player.guest == false ) 
                 {
-
-                    if ( this.player.guest == false ) 
-                    {
-
-                        this.another_player_f=this.match.player_guest.name;
-                    }else{
-                        this.another_player_f=this.match.player_host.name;
-                    }
-
-                }
-                else
-                {
-                    this.set_interval_player=setInterval(()=> {
-                        this.getAnotherPlayer();
-                    }, 2500);
+                    this.another_player_f=this.match.player_guest.name;
+                }else{
+                    this.another_player_f=this.match.player_host.name;
                 }
             }
+            else
+            {
+                this.set_interval_player=setInterval(()=> {
+                    this.getAnotherPlayer();
+                }, 2500);
+            }
+            
 
             if ( this.shift == false ) 
             {
@@ -278,51 +302,66 @@ import { Head, Link } from '@inertiajs/inertia-vue3';
                     this.updateInfoGame();
                 }, 2500);
             }
-            
+            else
+            {
+                alert("TEST")
+                //Para cuando tiene el turno pero el juego a terminado y se a refrescado la pagina
+                if (this.match.board.game_over) 
+                {
+                    this.set_interval = setInterval(()=> {
+                        this.updateInfoGame();
+                    }, 2500);
+                }
+            }      
         },
         methods:{
             play(pos)
             {
-
-                // if (this.shift__ == true || this.another_player_f != 0 ) 
-                if ( this.shift__ == true ) 
+                if(this.game_over != true )
                 {
-                    this.board[pos] = this.player.guest == true ? 2 : 1 ;
-                    this.shift__=false;
-                    let payLoad={
-                        board:this.board,
-                        code:this.code,
-                        player:this.player
-                    }
-                    axios.post('play' , payLoad )
-                    .then(response => {
+
+                    if ( this.shift__ == true ) 
+                    {
+                        this.board[pos] = this.player.guest == true ? 2 : 1 ;
                         this.shift__=false;
-                        if (response.data.winner == true )  
-                        {
-                            this.game_over=true
-                            alert("Ganasteeeeeeeeeeeeeeee");
-
-                            this.new_game=true;
-                            
-                            setTimeout(()=>{
-                                this.updateInfoGame();
-                            },2500); 
-
+                        let payLoad={
+                            board:this.board,
+                            code:this.code,
+                            player:this.player
                         }
-                        setTimeout(()=>{
-                            this.set_interval = setInterval(()=> {
-                                this.updateInfoGame(); 
-                                console.log("sol_222:"+this.time_i);
-                                this.time_i++; 
-                            }, 2500);
-                        },200);    
-                    })
-                    .catch(error => {
-                        console.log("Error - play() ")
-                    });
+                        axios.post('play' , payLoad )
+                        .then(response => {
+                            this.shift__=false;
+                            
+                            if (response.data.winner == true )  
+                            {
+                                this.game_over=true
+                                alert("Ganasteeeeeeeeeeeeeeee");
+
+                                // this.new_game=true;
+                                
+                                setTimeout(()=>{
+                                    this.updateInfoGame();
+                                },2500); 
+                            }
+                            setTimeout(()=>{
+                                this.set_interval = setInterval(()=> {
+                                    this.updateInfoGame(); 
+                                }, 2500);
+                            },200);    
+                        })
+                        .catch(error => {
+                            
+                            console.log("Error - play() ")
+                        });
+                    }
+                    else{
+                        alert("Nooooo pudes jugar todavia")
+                    }
                 }
-                else{
-                    alert("Nooooo pudes jugar todavia")
+                else
+                {
+                    this.notaGameOver()
                 }
             },
             updateInfoGame()
@@ -334,29 +373,49 @@ import { Head, Link } from '@inertiajs/inertia-vue3';
 
                 axios.post('get-info-update-game',payLoad)
                 .then(response => {
+
+
                     
-                    if ( response.data.shift_ == true ) 
+                    if(response.data.board.game_over != true )
                     {
-                        this.board=JSON.parse(response.data.board.board_fields);
-                        this.shift__= true;
-                        if (response.data.winner == true )  
+                        if ( response.data.shift_ == true ) 
                         {
-                            this.game_over=true;
+                            this.board=JSON.parse(response.data.board.board_fields);
+                            this.shift__= true;
+                            if (response.data.winner == true )  
+                            {
 
-                            setTimeout(()=>{
-                                alert("Game Oveeeer XD")
-                            },222)
+                                setTimeout(()=>{
+
+                                    if (this.game_over != true) 
+                                    {
+                                        alert("Game Oveeeer XD")
+                                    }
+
+                                    this.game_over=true;
+                                },222);
+
+
+                            }else{
+
+                                clearInterval(this.set_interval)
+                            }
                         }
-
-                        clearInterval(this.set_interval)
                     }
 
+                    if (response.data.board.request == 1) 
+                    {
+
+                        this.confirmNewGame();
+                    }
+
+                    // if (this.) {}
                 })
                 .catch(error => {
-
                 });
 
-                if (this.another_player_f == 0) {this.getAnotherPlayer() }
+                // Mejor traer el jugador en request
+                if (this.another_player_f == 0){this.getAnotherPlayer(); }
             },
             getAnotherPlayer()
             {
@@ -372,15 +431,10 @@ import { Head, Link } from '@inertiajs/inertia-vue3';
                     console.log("Error - getAnotherPlayer()");
                 });
             },
-
-
-
-
-
             confirmNewGame()
             {
                 //Ingresamos un mensaje a mostrar
-                var mensaje = confirm("¿Quires jugar de nuevo?");
+                var mensaje = confirm( this.another_player_f +": ¿Quires jugar de nuevo?");
                 //Detectamos si el usuario acepto el mensaje
                 if (mensaje) {
                     alert("¡Listo a jugar se dijo!");
@@ -388,13 +442,11 @@ import { Head, Link } from '@inertiajs/inertia-vue3';
                 }
                 else {
                     //Detectamos si el usuario denegó el mensaje
-                    alert("¡Ok en otra ocacipon sera, gracias por jugar!");
+                    alert("¡Ok en otra ocacipon sera, gracias por participar!");
                 }
             },
-
             startNewGame()
             {
-                alert("Nuevo juego")
 
                 let payLoad={
                     match:this.match,
@@ -413,12 +465,13 @@ import { Head, Link } from '@inertiajs/inertia-vue3';
             sendRequets()
             {
                 let payLoad={
-                    match:this.match,
+                    id_player:this.player.id,
                     code:this.code
                 }
 
                 axios.post('send-request' , payLoad )
                 .then(response => {
+                    this.waiting_response=true;
                 })
                 .catch(error => {
                     // var data = error.response.data;
@@ -444,6 +497,26 @@ import { Head, Link } from '@inertiajs/inertia-vue3';
                     this.shift__=false;
                 });
             },
+            notaGameOver()
+            {
+                //Ingresamos un mensaje a mostrar
+                var mensaje = confirm( "Hola, "+this.player.name +": El juego a terminado, ¿ quieres Empesar un juego nuevo ? da click en aceptar");
+                //Detectamos si el usuario acepto el mensaje
+                if (mensaje) {
+                    alert("¡Listo a jugar se dijo!");
+                    this.startNewGame();
+                }
+                else {
+                    //Detectamos si el usuario denegó el mensaje
+                    alert("¡Ok en otra ocacipon sera, gracias por participar!");
+                }
+            },
+
+
+
+
+
+
             testValidate()
             {
 

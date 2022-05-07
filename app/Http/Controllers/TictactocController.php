@@ -86,6 +86,11 @@ class TictactocController extends Controller
         ]);
     }
 
+    /**
+     * ooo
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function getPlayerSession($request)
     {
         $player=Player::where('token',token_s($request))->get();
@@ -182,25 +187,15 @@ class TictactocController extends Controller
         
         $match[0]->board = $board[0];
 
-        $match_player = $match[0]->board->shift == 1 ?  $match[0]->ref_player_one_id : $match[0]->ref_player_two_id;
-        if( $request->player['id'] == $match_player ){ $result=true; }else{ $result=false; }
+        $match[0]->shift_ = $this->shift( $request->player , $match[0] );
 
-        $match[0]->shift_ = $result;
+        $player = $request->player;
 
-
-        $player=$request->player;
-        $player['guest']  = $player['guest'] == true ? false  : true ;
+        $player['guest']  = $player['guest'] == true ? false : true ;
 
         $match[0]->winner = $this->validatePlay( $player , $board[0]->board_fields );
-        if ($match[0]->winner) 
-        {
-            # Reiniciar juego
-            // $board_type=BoardType::find($board[0]->boards_type_id);
-            // $board_fields=json_decode($board_type->board_fields);
-            // $board[0]->board_fields=$board_fields;
-            // $board[0]->first_player=$board[0]->first_player == 1 ? 2 : 1;
-            // $board[0]->save();
-        }
+
+        $match[0]->players=$this->infoPlayers($match[0]);
 
         return $match[0];
     }
@@ -209,26 +204,28 @@ class TictactocController extends Controller
 
 
     
-    public function requestGame($value='')
+    public function requestGame( Request $request )
     {
         # code...
         $match = MatchGame::where('code_match',$request->code)->get();
         $board = Board::where( 'matchs_id' , $match[0]->id )->get();
         
+        $board[0]->ref_player_rerquest=$request->id_player;
         $board[0]->request=1;
 
         $board[0]->save();
+
+        return $board[0];
     }
 
-    public function responseGame($value='')
+    public function responseGame( Request $request )
     {
         # code...
-
         $match = MatchGame::where('code_match',$request->code)->get();
         $board = Board::where( 'matchs_id' , $match[0]->id )->get();
         
-        $board[0]->response=1;
-        $board[0]->request=0;
+        $board[0]->request = 0;
+        $board[0]->response= 1;
 
         $board[0]->save();
     }
@@ -242,7 +239,11 @@ class TictactocController extends Controller
         $board_type=BoardType::find($board[0]->boards_type_id);
         $board_fields=json_decode($board_type->board_fields);
         $board[0]->board_fields=$board_fields;
+        $board[0]->ref_player_rerquest=0;
+        $board[0]->request = 0;
+        $board[0]->response= 1;
         $board[0]->first_player=$board[0]->first_player == 1 ? 2 : 1;
+
         $board[0]->save();
     }
 
@@ -260,15 +261,15 @@ class TictactocController extends Controller
     public function play( Request $request )
     {
         $match = MatchGame::where('code_match', $request->code )->get();
+        
         $board = Board::where('matchs_id',$match[0]->id)->get();
         $board[0]->board_fields = json_encode($request->board) ;       
         $board[0]->shift = $board[0]->shift == 1 ? 2 : 1;
-        $board[0]->save();
-
-        $board[0]->winner = $this->validatePlay( $request->player , $board[0]->board_fields );
 
         if ($board[0]->winner == true )
         {
+            $board[0]->first_player = $board[0]->shift == 1 ? 2 : 1;
+            $board[0]->game_over = true;
             MatchHistory::create([
                 "matchs_id"         => $match[0]->id ,
                 "winning_player"    => $request->player['id'] ,
@@ -276,6 +277,9 @@ class TictactocController extends Controller
             ]);
 
         }
+
+        $board[0]->save();
+        $board[0]->winner = $this->validatePlay( $request->player , $board[0]->board_fields );
 
         return $board[0];
     }
@@ -401,11 +405,11 @@ class TictactocController extends Controller
         ]);
 
         // El tipo de tablero da la posibilidad de jugar con un tablero 3x3 o 4x4 proxima versiob 5x5 XD
-        $board_type=BoardType::find($config->type);
-        $board_fields=json_decode($board_type->board_fields);
+        $board_type = BoardType::find($config->type);
+        $board_fields = json_decode($board_type->board_fields);
 
         $board=Board::create([
-            "matchs_id"          => $match->id,
+            "matchs_id"         => $match->id,
             "first_player"      => 1, // hace referncia a el jugador que inica cada juego
             "boards_type_id"    => $board_type->id,
             "board_fields"      => json_encode($board_fields)
@@ -462,11 +466,20 @@ class TictactocController extends Controller
         $result;
 
         $match_player = $match->board->shift == 1 ?  $match->ref_player_one_id : $match->ref_player_two_id;
-
-        if( $player->id == $match_player ){ $result=true; }else{ $result=false; }
+        $player= is_array($player) ? $player['id'] : $player->id ;
+        if( $player == $match_player ){ $result=true; }else{ $result=false; }
 
         return $result;
     }
+
+
+
+
+
+
+
+
+
 
     public function test( Request $request )
     {

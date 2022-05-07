@@ -20,6 +20,10 @@ class Board extends Model
         'matchs_id',
         'first_player',
         'board_fields',
-        'boards_type_id'
+        'boards_type_id',
+        'ref_player_rerquest',
+        'request',
+        'response',
+        'game_over'
     ];
 }
