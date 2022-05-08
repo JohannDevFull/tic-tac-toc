@@ -48,7 +48,11 @@ class BoardTypeSeeder extends Seeder
             [8,9,10],
             [9,10,11],
             [12,13,14],
-            [13,14,15]
+            [13,14,15],
+            [0,5,10],
+            [5,10,15],
+            [3,6,9],
+            [6,9,12],
         ];
 
         //Para una proxima version XD

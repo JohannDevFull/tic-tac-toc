@@ -193,13 +193,12 @@ class TictactocController extends Controller
 
         $player['guest']  = $player['guest'] == true ? false : true ;
 
-        $match[0]->winner = $this->validatePlay( $player , $board[0]->board_fields );
+        $match[0]->winner = $this->validatePlay( $player , $board[0]->board_fields , $board[0]->boards_type_id);
 
         $match[0]->players=$this->infoPlayers($match[0]);
 
         return $match[0];
     }
-
 
 
 
@@ -211,29 +210,29 @@ class TictactocController extends Controller
         $board = Board::where( 'matchs_id' , $match[0]->id )->get();
         
         $board[0]->ref_player_rerquest=$request->id_player;
-        $board[0]->request=1;
+        $board[0]->request=true;
 
         $board[0]->save();
 
         return $board[0];
     }
 
-    public function responseGame( Request $request )
-    {
-        # code...
-        $match = MatchGame::where('code_match',$request->code)->get();
-        $board = Board::where( 'matchs_id' , $match[0]->id )->get();
+    // public function responseGame( Request $request )
+    // {
+    //     # code...
+    //     $match = MatchGame::where('code_match',$request->code)->get();
+    //     $board = Board::where( 'matchs_id' , $match[0]->id )->get();
         
-        $board[0]->request = 0;
-        $board[0]->response= 1;
+    //     $board[0]->request = 0;
+    //     $board[0]->response= 1;
 
-        $board[0]->save();
-    }
+    //     $board[0]->save();
+    // }
     
     public function newGame( Request $request )
     {
         # code...
-        $match = MatchGame::where('code_match',$request->code)->get();
+        $match = MatchGame::where( 'code_match' , $request->code )->get();
         $board = Board::where( 'matchs_id' , $match[0]->id )->get();
         
         $board_type=BoardType::find($board[0]->boards_type_id);
@@ -241,10 +240,15 @@ class TictactocController extends Controller
         $board[0]->board_fields=$board_fields;
         $board[0]->ref_player_rerquest=0;
         $board[0]->request = 0;
-        $board[0]->response= 1;
+        $board[0]->response= true;
+
+        $board[0]->game_over = false;
+
         $board[0]->first_player=$board[0]->first_player == 1 ? 2 : 1;
 
         $board[0]->save();
+
+        return $board[0];
     }
 
     public function updateName( Request $request )
@@ -266,7 +270,7 @@ class TictactocController extends Controller
         $board[0]->board_fields = json_encode($request->board) ;       
         $board[0]->shift = $board[0]->shift == 1 ? 2 : 1;
 
-        if ($board[0]->winner == true )
+        if ( $this->validatePlay( $request->player , $board[0]->board_fields , $board[0]->boards_type_id) )
         {
             $board[0]->first_player = $board[0]->shift == 1 ? 2 : 1;
             $board[0]->game_over = true;
@@ -275,30 +279,23 @@ class TictactocController extends Controller
                 "winning_player"    => $request->player['id'] ,
                 "board_plays"       => $board[0]->board_fields
             ]);
-
         }
 
         $board[0]->save();
-        $board[0]->winner = $this->validatePlay( $request->player , $board[0]->board_fields );
+
+        $board[0]->winner = $this->validatePlay( $request->player , $board[0]->board_fields , $board[0]->boards_type_id);
 
         return $board[0];
     }
 
-    public function validatePlay( $player , $boar )
+    public function validatePlay( $player , $boar , $type)
     {
         $player = $player['guest'] == true ? 2 : 1 ;
         $board_fields = json_decode( $boar ) ;
+
+        $board_type = BoardType::find($type);
         
-        $possible_wins=[
-            [0,3,6],
-            [1,4,7],
-            [2,5,8],
-            [0,4,8],
-            [2,4,6],
-            [0,1,2],
-            [3,4,5],
-            [6,7,8]
-        ];
+        $possible_wins=json_decode($board_type->board_fields_winners);
 
         $winner=false;
         $sum=0;
@@ -411,6 +408,7 @@ class TictactocController extends Controller
         $board=Board::create([
             "matchs_id"         => $match->id,
             "first_player"      => 1, // hace referncia a el jugador que inica cada juego
+            "game_over"         => false,
             "boards_type_id"    => $board_type->id,
             "board_fields"      => json_encode($board_fields)
         ]);

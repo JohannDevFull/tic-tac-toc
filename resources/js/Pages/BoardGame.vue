@@ -86,7 +86,7 @@
                         
                         <div class="card-body">
                             
-                            <table id="tablero" style="margin:auto; cursor: pointer;" >
+                            <table id="tablero" style="margin:auto; cursor: pointer;" v-if="match.board.boards_type_id ==1">
                                 <tr>
                                     <td @click="play(0)">
                                         <i class="fas fa-times" v-if="board[0] == 1"></i>
@@ -133,7 +133,83 @@
                                 </tr>
                             </table>
 
-                            <table id="tablero" style="margin:auto" >
+                            <table id="tablero" style="margin:auto" v-if="match.board.boards_type_id ==2">
+
+                                <tr>
+                                    <td @click="play(0)">
+                                        <i class="fas fa-times" v-if="board[0] == 1"></i>
+                                        <i class="far fa-circle" v-if="board[0] == 2"></i>
+                                    </td>
+                                    <td @click="play(1)">
+                                        <i class="fas fa-times" v-if="board[1] == 1"></i>
+                                        <i class="far fa-circle" v-if="board[1] == 2"></i>
+                                    </td>
+                                    <td @click="play(2)">
+                                        <i class="fas fa-times" v-if="board[2] == 1"></i>
+                                        <i class="far fa-circle" v-if="board[2] == 2"></i>
+                                    </td>
+                                    <td @click="play(3)">
+                                        <i class="fas fa-times" v-if="board[3] == 1"></i>
+                                        <i class="far fa-circle" v-if="board[3] == 2"></i>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td @click="play(4)">
+                                        <i class="fas fa-times" v-if="board[4] == 1"></i>
+                                        <i class="far fa-circle" v-if="board[4] == 2"></i>
+                                    </td>
+                                    <td @click="play(5)">
+                                        <i class="fas fa-times" v-if="board[5] == 1"></i>
+                                        <i class="far fa-circle" v-if="board[5] == 2"></i>
+                                    </td>
+                                    <td @click="play(6)">
+                                        <i class="fas fa-times" v-if="board[6] == 1"></i>
+                                        <i class="far fa-circle" v-if="board[6] == 2"></i>
+                                    </td>
+                                    <td @click="play(7)">
+                                        <i class="fas fa-times" v-if="board[7] == 1"></i>
+                                        <i class="far fa-circle" v-if="board[7] == 2"></i>
+                                    </td>
+                                </tr>
+                                
+                                <tr>
+                                    <td @click="play(8)">
+                                        <i class="fas fa-times" v-if="board[8] == 1"></i>
+                                        <i class="far fa-circle" v-if="board[8] == 2"></i>
+                                    </td>
+                                    <td @click="play(9)">
+                                        <i class="fas fa-times" v-if="board[9] == 1"></i>
+                                        <i class="far fa-circle" v-if="board[9] == 2"></i>
+                                    </td>
+                                    <td @click="play(10)">
+                                        <i class="fas fa-times" v-if="board[10] == 1"></i>
+                                        <i class="far fa-circle" v-if="board[10] == 2"></i>
+                                    </td>
+                                    <td @click="play(11)">
+                                        <i class="fas fa-times" v-if="board[11] == 1"></i>
+                                        <i class="far fa-circle" v-if="board[11] == 2"></i>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td @click="play(12)">
+                                        <i class="fas fa-times" v-if="board[12] == 1"></i>
+                                        <i class="far fa-circle" v-if="board[12] == 2"></i>
+                                    </td>
+                                    <td @click="play(13)">
+                                        <i class="fas fa-times" v-if="board[13] == 1"></i>
+                                        <i class="far fa-circle" v-if="board[13] == 2"></i>
+                                    </td>
+                                    <td @click="play(14)">
+                                        <i class="fas fa-times" v-if="board[14] == 1"></i>
+                                        <i class="far fa-circle" v-if="board[14] == 2"></i>
+                                    </td>
+                                    <td @click="play(15)">
+                                        <i class="fas fa-times" v-if="board[15] == 1"></i>
+                                        <i class="far fa-circle" v-if="board[15] == 2"></i>
+                                    </td>
+                                </tr>
                             
                             </table>
 
@@ -243,6 +319,8 @@ import { Head, Link } from '@inertiajs/inertia-vue3';
                 new_game:false,
                 waiting_response:false,
                 icono:'fas fa-times',
+                nitefied:false,
+                nitefied_game_over:false,
                 icons:[
                     'fas fa-user',
                     'fas fa-cat',
@@ -304,7 +382,6 @@ import { Head, Link } from '@inertiajs/inertia-vue3';
             }
             else
             {
-                alert("TEST")
                 //Para cuando tiene el turno pero el juego a terminado y se a refrescado la pagina
                 if (this.match.board.game_over) 
                 {
@@ -374,42 +451,94 @@ import { Head, Link } from '@inertiajs/inertia-vue3';
                 axios.post('get-info-update-game',payLoad)
                 .then(response => {
 
-
-                    
                     if(response.data.board.game_over != true )
                     {
                         if ( response.data.shift_ == true ) 
                         {
-                            this.board=JSON.parse(response.data.board.board_fields);
+                            
                             this.shift__= true;
-                            if (response.data.winner == true )  
+                            if (response.data.winner == false )  
                             {
-
-                                setTimeout(()=>{
-
-                                    if (this.game_over != true) 
-                                    {
-                                        alert("Game Oveeeer XD")
-                                    }
-
-                                    this.game_over=true;
-                                },222);
-
-
-                            }else{
-
                                 clearInterval(this.set_interval)
                             }
                         }
+
+                        setTimeout(()=>{
+                            this.game_over=false;
+
+                        },1000);
+                        this.nitefied=false;
+                        this.nitefied_game_over=false;
+                        console.log("juego en curso")
+                    }
+                    else
+                    {
+
+                        console.log("juego terminado -- winner::"+ response.data.winner)
                     }
 
-                    if (response.data.board.request == 1) 
+                    this.board=JSON.parse(response.data.board.board_fields);
+
+                    if (response.data.winner == true ) 
+                    {
+                        if (this.nitefied_game_over == false)
+                        {
+                            if (response.data.board.game_over == true) 
+                            {
+                                alert("Game Oveeeer XD")
+
+                                setTimeout(()=>{
+
+                                    this.nitefied_game_over=true;
+                                    this.game_over=true;
+                                    console.log("winer sii")
+                                },200);
+                            }
+                            else
+                            {
+
+                                console.log("Game Oveeeer XD .,.,.,.,.")
+                            }
+                            console.log("nitefied_game_over Noo")
+                        }
+                        else
+                        {
+
+                            console.log("nitefied_game_over sii")
+                        }
+
+                        
+                    }
+                
+
+
+
+
+
+
+
+
+                    if (response.data.board.request == 1 && response.data.board.ref_player_rerquest != this.player.id) 
                     {
 
                         this.confirmNewGame();
+                            console.log("nitefied_ NOOOO")
+
+                    }else{
+                            console.log("nitefied ---- sii")
+
                     }
 
-                    // if (this.) {}
+                    if (this.player.guest)
+                    {
+
+                        this.another_player_f=response.data.players.guest.name==this.another_player_f?this.another_player_f:response.data.players.host.name;
+                    }
+                    else
+                    {
+
+                        this.another_player_f=response.data.players.guest.name==this.another_player_f?this.another_player_f:response.data.players.guest.name;
+                    }
                 })
                 .catch(error => {
                 });
@@ -434,19 +563,27 @@ import { Head, Link } from '@inertiajs/inertia-vue3';
             confirmNewGame()
             {
                 //Ingresamos un mensaje a mostrar
-                var mensaje = confirm( this.another_player_f +": ¿Quires jugar de nuevo?");
-                //Detectamos si el usuario acepto el mensaje
-                if (mensaje) {
-                    alert("¡Listo a jugar se dijo!");
-                    this.startNewGame();
-                }
-                else {
-                    //Detectamos si el usuario denegó el mensaje
-                    alert("¡Ok en otra ocacipon sera, gracias por participar!");
+                if (this.nitefied==false)
+                {
+
+                    var mensaje = confirm( this.another_player_f +" ¿Quires jugar de nuevo?");
+                    //Detectamos si el usuario acepto el mensaje
+                    if (mensaje) {
+                        alert("¡Listo a jugar se dijo!");
+                        this.startNewGame();
+                    }
+                    else {
+                        //Detectamos si el usuario denegó el mensaje
+                        alert("¡Ok en otra ocacipon sera, gracias por participar!");
+                    }
+
+                    this.nitefied=true;
                 }
             },
             startNewGame()
             {
+                this.nitefied_game_over=false;
+                this.game_over=false;
 
                 let payLoad={
                     match:this.match,
@@ -455,6 +592,9 @@ import { Head, Link } from '@inertiajs/inertia-vue3';
 
                 axios.post('new-game' , payLoad )
                 .then(response => {
+                    console.log("New Game start ----------------------------------------------------------------------")
+                    this.nitefied=false;
+                    
                 })
                 .catch(error => {
                     // var data = error.response.data;
