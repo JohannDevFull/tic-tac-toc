@@ -303,11 +303,23 @@ class TictactocController extends Controller
 
         foreach ($possible_wins as $key ) 
         {
-            if ( $board_fields[ $key[0] ] == $player ){ $sum ++;  }
-            if ( $board_fields[ $key[1] ] == $player ){ $sum ++;  }
-            if ( $board_fields[ $key[2] ] == $player ){ $sum ++;  }
+            if ($board_type->id > 1)
+            {
+                # code...
+                if ( $board_fields[ $key[0] ] == $player ){ $sum ++;  }
+                if ( $board_fields[ $key[1] ] == $player ){ $sum ++;  }
+                if ( $board_fields[ $key[2] ] == $player ){ $sum ++;  }
+                if ( $board_fields[ $key[3] ] == $player ){ $sum ++;  }
+                if ( $sum == 4 ) { $winner = true;   }
+            }
+            else
+            {
+                if ( $board_fields[ $key[0] ] == $player ){ $sum ++;  }
+                if ( $board_fields[ $key[1] ] == $player ){ $sum ++;  }
+                if ( $board_fields[ $key[2] ] == $player ){ $sum ++;  }
+                if ( $sum == 3 ) { $winner = true;   }
+            }
         
-            if ( $sum == 3 ) { $winner = true;   }
             
             $sum=0;
 
@@ -482,10 +494,23 @@ class TictactocController extends Controller
     public function test( Request $request )
     {
 
-        $data = $request->session()->all();
+        // $data = $request->session()->all();
+        // return $data['_token'];
 
-        return $data['_token'];
-    }
+        $winners_five_diagonals=[
+            [77,77,77,77],
+            [77,77,77,77],
+            [77,77,77,77],
+            [77,77,77,77],
+            [77,77,77,77]
+        ];
+
+
+        $winners_seven=$this->winningCombinations( 7 , 4 , $winners_five_diagonals);
+        // $winners_seven=$this->winningCombinations( 7 , 4 );
+
+        return $winners_seven;
+    } 
 
     public function testValidate( )
     {
@@ -531,5 +556,59 @@ class TictactocController extends Controller
         ];
 
         dd($test);
+    }
+
+    public function winningCombinations($num=5,$cant=3,$diagonals)
+    {
+        # code...
+        $possible_wins = array();
+        $array = array();
+
+        $position=0;
+        
+        //Posibles combinaciones horizontales
+        for ( $x = 0; $x < $num; $x++)
+        {
+            $ini_y = $num * $x ;  
+            for ( $y=0 ; $y < $cant ; $y++ )
+            {
+                $ini_z = $ini_y + $y ;
+                for ($z=0; $z < 4 ; $z++) 
+                {
+                    $array[] = $ini_z + $z ;
+                }
+                $possible_wins[] = $array;
+                $array =  array(); 
+            }
+        }
+
+        //Posibles combinaciones verticales
+        for ( $x = 0; $x < $num; $x++)
+        {
+            for ( $y = 0; $y < $cant; $y++ )
+            {
+                $next = $y == 0 ? $x : $next;
+                    for ($i=0; $i < 4 ; $i++) 
+                    {
+                        $campo = $i == 0 ? $next : $campo;
+                            $array[] = $campo ;
+                        $campo = $campo + $num;
+                    }
+                    $possible_wins[] = $array;
+                    $array =  array();
+                $next= $next + $num;
+            }
+        }
+
+        //Posibles combinaciones Diagonales
+        foreach ($diagonals as $key ) 
+        {
+            $possible_wins[] = $key;
+        }
+
+
+
+        return $possible_wins;
+        // return 0 * 7;
     }
 }

@@ -73,10 +73,12 @@
                 
                 <div class="col">
                     <div class="card mb-4 rounded-3 shadow-sm">                     
+                        
                         <div class="card-header py-3" v-if="game_over == false">
                             <h4 class="my-0 fw-normal text-dark" v-if="shift__ == true">Haz tu jugada</h4>
                             <h4 class="my-0 fw-normal text-dark" v-else>Espera tu turno</h4>
                         </div>
+                        
                         <div class="card-header py-3" v-else>
                             <h4 class="my-0 fw-normal text-dark" >El juego a terminado</h4>
                             <button type="button" class="w-100 btn btn-lg btn-primary mt-2" @click="sendRequets()">
@@ -85,51 +87,16 @@
                         </div>
                         
                         <div class="card-body">
-                            
-                            <table id="tablero" style="margin:auto; cursor: pointer;" v-if="match.board.boards_type_id ==1">
-                                <tr>
-                                    <td @click="play(0)">
-                                        <i class="fas fa-times" v-if="board[0] == 1"></i>
-                                        <i class="far fa-circle" v-if="board[0] == 2"></i>
-                                    </td>
-                                    <td @click="play(1)">
-                                        <i class="fas fa-times" v-if="board[1] == 1"></i>
-                                        <i class="far fa-circle" v-if="board[1] == 2"></i>
-                                    </td>
-                                    <td @click="play(2)">
-                                        <i class="fas fa-times" v-if="board[2] == 1"></i>
-                                        <i class="far fa-circle" v-if="board[2] == 2"></i>
-                                    </td>
-                                </tr>
 
-                                <tr>
-                                    <td @click="play(3)">
-                                        <i class="fas fa-times" v-if="board[3] == 1"></i>
-                                        <i class="far fa-circle" v-if="board[3] == 2"></i>
+                            <table id="tablero" style="margin:auto" v-if="match.board.boards_type_id == 1">
+                                <tr v-for="item in five">
+                                    
+                                    <td v-for="( item_ , i ) in 5" @click="play(item[i] )">
+
+                                        <i class="fas fa-times" v-if="board[item[i]] == 1"></i>
+                                        <i class="far fa-circle" v-if="board[item[i]] == 2"></i>
                                     </td>
-                                    <td @click="play(4)">
-                                        <i class="fas fa-times" v-if="board[4] == 1"></i>
-                                        <i class="far fa-circle" v-if="board[4] == 2"></i>
-                                    </td>
-                                    <td @click="play(5)">
-                                        <i class="fas fa-times" v-if="board[5] == 1"></i>
-                                        <i class="far fa-circle" v-if="board[5] == 2"></i>
-                                    </td>
-                                </tr>
-                                
-                                <tr>
-                                    <td @click="play(6)">
-                                        <i class="fas fa-times" v-if="board[6] == 1"></i>
-                                        <i class="far fa-circle" v-if="board[6] == 2"></i>
-                                    </td>
-                                    <td @click="play(7)">
-                                        <i class="fas fa-times" v-if="board[7] == 1"></i>
-                                        <i class="far fa-circle" v-if="board[7] == 2"></i>
-                                    </td>
-                                    <td @click="play(8)">
-                                        <i class="fas fa-times" v-if="board[8] == 1"></i>
-                                        <i class="far fa-circle" v-if="board[8] == 2"></i>
-                                    </td>
+
                                 </tr>
                             </table>
 
@@ -152,6 +119,10 @@
                                         <i class="fas fa-times" v-if="board[3] == 1"></i>
                                         <i class="far fa-circle" v-if="board[3] == 2"></i>
                                     </td>
+                                    <td @click="play(3)">
+                                        <i class="fas fa-times" v-if="board[3] == 1"></i>
+                                        <i class="far fa-circle" v-if="board[3] == 2"></i>
+                                    </td>
                                 </tr>
 
                                 <tr>
@@ -170,6 +141,10 @@
                                     <td @click="play(7)">
                                         <i class="fas fa-times" v-if="board[7] == 1"></i>
                                         <i class="far fa-circle" v-if="board[7] == 2"></i>
+                                    </td>
+                                    <td @click="play(3)">
+                                        <i class="fas fa-times" v-if="board[3] == 1"></i>
+                                        <i class="far fa-circle" v-if="board[3] == 2"></i>
                                     </td>
                                 </tr>
                                 
@@ -190,6 +165,10 @@
                                         <i class="fas fa-times" v-if="board[11] == 1"></i>
                                         <i class="far fa-circle" v-if="board[11] == 2"></i>
                                     </td>
+                                    <td @click="play(3)">
+                                        <i class="fas fa-times" v-if="board[3] == 1"></i>
+                                        <i class="far fa-circle" v-if="board[3] == 2"></i>
+                                    </td>
                                 </tr>
 
                                 <tr>
@@ -209,12 +188,51 @@
                                         <i class="fas fa-times" v-if="board[15] == 1"></i>
                                         <i class="far fa-circle" v-if="board[15] == 2"></i>
                                     </td>
+                                    <td @click="play(3)">
+                                        <i class="fas fa-times" v-if="board[3] == 1"></i>
+                                        <i class="far fa-circle" v-if="board[3] == 2"></i>
+                                    </td>
                                 </tr>
-                            
+
+                                <tr>
+                                    <td @click="play(12)">
+                                        <i class="fas fa-times" v-if="board[12] == 1"></i>
+                                        <i class="far fa-circle" v-if="board[12] == 2"></i>
+                                    </td>
+                                    <td @click="play(13)">
+                                        <i class="fas fa-times" v-if="board[13] == 1"></i>
+                                        <i class="far fa-circle" v-if="board[13] == 2"></i>
+                                    </td>
+                                    <td @click="play(14)">
+                                        <i class="fas fa-times" v-if="board[14] == 1"></i>
+                                        <i class="far fa-circle" v-if="board[14] == 2"></i>
+                                    </td>
+                                    <td @click="play(15)">
+                                        <i class="fas fa-times" v-if="board[15] == 1"></i>
+                                        <i class="far fa-circle" v-if="board[15] == 2"></i>
+                                    </td>
+                                    <td @click="play(3)">
+                                        <i class="fas fa-times" v-if="board[3] == 1"></i>
+                                        <i class="far fa-circle" v-if="board[3] == 2"></i>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <table id="tablero" style="margin:auto" v-if="match.board.boards_type_id == 3">
+                                <tr v-for="item in seven">
+                                    
+                                    <td v-for="( item_ , i ) in 7" @click="play(item[i] )">
+
+                                        <i class="fas fa-times" v-if="board[item[i]] == 1"></i>
+                                        <i class="far fa-circle" v-if="board[item[i]] == 2"></i>
+                                    </td>
+
+                                </tr>
                             </table>
 
                             <button type="button" class="w-100 btn btn-lg btn-outline-primary mt-3">0  vs  1</button>                           
                         </div>
+
                     </div>
                 </div>
 
@@ -224,7 +242,6 @@
                             
                             <input type="text" class="form-control" v-if="name_edit" v-model="user_name">
                             <h4 class="my-0 fw-normal" v-else>{{user_name}}</h4>
-
                         </div>
                         <div class="card-body">
                             
@@ -301,7 +318,7 @@ import { Head, Link } from '@inertiajs/inertia-vue3';
                 user_name:"Player 2",
                 another_player_f:0,
                 
-                board:[0,0,0,0,0,0,0,0,0],
+                board:[],
                 board_test:[],
                 shift__:false,
                 set_interval:'',
@@ -338,6 +355,26 @@ import { Head, Link } from '@inertiajs/inertia-vue3';
                     'fas fa-wand-sparkles',
                     'fas fa-bugs',
                     'fas fa-crow'
+                ],
+                num_item:-1,
+                num_item_two:-1,
+
+                five:[
+                    [0,1,2,3,4],
+                    [5,6,7,8,9],
+                    [10,11,12,13,14],
+                    [15,16,17,18,19],
+                    [20,21,22,23,24]
+                ],
+
+                seven:[
+                    [0,1,2,3,4,5,6],
+                    [7,8,9,10,11,12,13],
+                    [14,15,16,17,18,19,20],
+                    [21,22,23,24,25,26,27],
+                    [28,29,39,31,32,33,34],
+                    [35,36,37,38,39,40,41],
+                    [42,43,44,45,46,47,48]
                 ]
             }
         },
@@ -406,6 +443,7 @@ import { Head, Link } from '@inertiajs/inertia-vue3';
                             code:this.code,
                             player:this.player
                         }
+                        
                         axios.post('play' , payLoad )
                         .then(response => {
                             this.shift__=false;
@@ -433,6 +471,7 @@ import { Head, Link } from '@inertiajs/inertia-vue3';
                         });
                     }
                     else{
+
                         alert("Nooooo pudes jugar todavia")
                     }
                 }
@@ -656,7 +695,11 @@ import { Head, Link } from '@inertiajs/inertia-vue3';
 
 
 
+            numItem()
+            {
 
+                return this.num_item++;
+            },
             testValidate()
             {
 

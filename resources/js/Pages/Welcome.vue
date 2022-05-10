@@ -20,10 +20,10 @@
 
     <main class="px-1" v-if="join_game == false">
         <h1>Tic tac toc.</h1>
-        <p class="lead">
-            El tres en línea, también conocido como ceros y cruces, tres en raya, cerito cruz, michi, triqui, cuadritos, juego del gato, gato, tatetí, totito, triqui traka, equis cero, tic-tac-toe o la vieja es un juego de lápiz y papel entre dos jugadores: O y X, que marcan los espacios de un tablero de 3×3 alternadamente.
-            <a href="https://es.wikipedia.org/wiki/Tres_en_l%C3%ADnea" class="fw-bold border-white ">Wikipedia</a>
-        </p>
+          <p class="lead">
+              El tres en línea, también conocido como ceros y cruces, tres en raya, cerito cruz, michi, triqui, cuadritos, juego del gato, gato, tatetí, totito, triqui traka, equis cero, tic-tac-toe o la vieja es un juego de lápiz y papel entre dos jugadores: O y X, que marcan los espacios de un tablero de 3×3 alternadamente.
+              <a href="https://es.wikipedia.org/wiki/Tres_en_l%C3%ADnea" class="fw-bold border-white ">Wikipedia</a>
+          </p>
           
           <p class="text-uppercase pt-1">Tipo de tablero.</p>
         <div >
@@ -31,10 +31,10 @@
           <label :class=" type == 1 ? 'btn btn-outline-success' : 'btn btn-outline-danger' " for="type_1">Tres</label>
           -
           <input type="radio" class="btn-check" id="type_2"  :value="2" v-model="type">
-          <label :class=" type == 2 ? 'btn btn-outline-success' : 'btn btn-outline-danger' " for="type_2">Cuatro</label>
+          <label :class=" type == 2 ? 'btn btn-outline-success' : 'btn btn-outline-danger' " for="type_2">Cinco</label>
           -
-          <input type="radio" class="btn-check"   :value="3" v-model="type" disabled>
-          <label class="btn btn-outline-danger" for="danger-outlined">Cinco</label>
+          <input type="radio" class="btn-check" id="type_3"  :value="3" v-model="type" >
+          <label :class=" type == 3 ? 'btn btn-outline-success' : 'btn btn-outline-danger' " for="type_3">Siete</label>
         </div>
 
           <p class="text-uppercase pt-1">Multijugador.</p>
